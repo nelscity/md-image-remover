@@ -1,26 +1,39 @@
 /* style.css */
 
-body {
+html, body {
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
     font-family: Arial, sans-serif;
-    margin: 20px;
-    line-height: 1.6;
     background-color: #f7f7f7;
     /* Center all text */
     text-align: center;
+    /* Ensure box sizing so padding doesn't cause overflow */
+    box-sizing: border-box;
+  }
+  
+  *, *:before, *:after {
+    box-sizing: inherit;
   }
   
   h1, p {
     margin: 10px 0;
   }
   
+  /* Container for the textareas and button */
   .container {
-    display: inline-block;
-    text-align: left; /* Keep text areas aligned inside the container */
-    max-width: 800px;
-    width: 100%;
+    display: block;         /* Make it a block-level element */
+    max-width: 800px;       /* Constrain max width */
+    width: 100%;            /* Let it scale down on smaller screens */
+    margin: 0 auto 20px;    /* Center horizontally & add bottom margin */
+    text-align: left;       /* Keep the textarea text left-aligned */
+    padding: 0 10px;        /* Small horizontal padding */
   }
   
   textarea {
+    display: block;
     width: 100%;
     margin: 10px 0;
     padding: 10px;
@@ -48,10 +61,11 @@ body {
   
   /* Description at the bottom */
   .description {
-    margin-top: 20px;
-    display: inline-block;
-    text-align: left;
+    display: block;         /* Make it a block-level element */
     max-width: 800px;
     width: 100%;
+    margin: 0 auto 20px;    /* Center horizontally & add some bottom margin */
+    text-align: left;       /* Left-align this paragraph by default */
+    padding: 0 10px;        /* Small horizontal padding */
   }
   

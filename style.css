@@ -1,0 +1,57 @@
+/* style.css */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    line-height: 1.6;
+    background-color: #f7f7f7;
+    /* Center all text */
+    text-align: center;
+  }
+  
+  h1, p {
+    margin: 10px 0;
+  }
+  
+  .container {
+    display: inline-block;
+    text-align: left; /* Keep text areas aligned inside the container */
+    max-width: 800px;
+    width: 100%;
+  }
+  
+  textarea {
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+    font-family: "Courier New", monospace;
+  }
+  
+  .button-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+  
+  button {
+    background: #007acc;
+    color: #ffffff;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  button:hover {
+    background: #005fa3;
+  }
+  
+  /* Description at the bottom */
+  .description {
+    margin-top: 20px;
+    display: inline-block;
+    text-align: left;
+    max-width: 800px;
+    width: 100%;
+  }
+  

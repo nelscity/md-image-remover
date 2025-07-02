@@ -186,7 +186,8 @@
   <h1>Markdown Cleaner & Linter</h1>
   <p>
     Paste your Markdown below, then click "Clean Markdown" to automatically remove 
-    inline image references, optionally remove page numbers, clean up double spaces,
+    inline image references, optionally remove page numbers, convert bullet characters 
+    to markdown lists, remove extra spacing between list items, clean up double spaces, 
     check for style issues, and copy the cleaned text to your clipboard.
   </p>
 
@@ -217,6 +218,8 @@
     <ul>
       <li><em>Clean Markdown</em> automatically removes <code>![][imageX]</code> references and their reference lines.</li>
       <li>If <em>Remove page numbers</em> is checked, also deletes lines like <code>Page 12 of 35</code> or <code>Page 7</code>.</li>
+      <li>Converts bullet characters (•, ▪, ▫, etc.) to proper markdown list format using dashes.</li>
+      <li>Removes blank lines between consecutive list items (markdown best practice).</li>
       <li>Removes all double spaces, replacing them with single spaces throughout the text.</li>
       <li>Runs a built-in linter to check for common Markdown style issues (silently).</li>
       <li>Automatically copies the cleaned Markdown to your clipboard.</li>
@@ -279,6 +282,78 @@ document.addEventListener('DOMContentLoaded', () => {
     return text;
   };
 
+  // Remove blank lines between consecutive list items (markdown best practice)
+  const processRemoveListSpacing = (text) => {
+    const lines = text.split('\n');
+    const processedLines = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+      const currentLine = lines[i];
+      const nextLine = lines[i + 1];
+      const lineAfterNext = lines[i + 2];
+      
+      // Check if current line is a list item (-, *, +, or numbered)
+      const isCurrentListItem = /^\s*[-*+]\s/.test(currentLine) || /^\s*\d+\.\s/.test(currentLine);
+      
+      // Check if line after next is a list item with same indentation
+      const isLineAfterNextListItem = lineAfterNext && 
+        (/^\s*[-*+]\s/.test(lineAfterNext) || /^\s*\d+\.\s/.test(lineAfterNext));
+      
+      // If current line is a list item, next line is blank, and line after that is also a list item
+      // with the same indentation level, skip the blank line
+      if (isCurrentListItem && nextLine === '' && isLineAfterNextListItem) {
+        // Get indentation of current and future list items
+        const currentIndent = currentLine.match(/^(\s*)/)[1];
+        const futureIndent = lineAfterNext.match(/^(\s*)/)[1];
+        
+        // Only remove blank line if indentation levels match (same list)
+        if (currentIndent === futureIndent) {
+          processedLines.push(currentLine);
+          // Skip the blank line (i + 1)
+          i++; // This will make the next iteration process lineAfterNext
+          continue;
+        }
+      }
+      
+      processedLines.push(currentLine);
+    }
+    
+    return processedLines.join('\n');
+  };
+  const processConvertBullets = (text) => {
+    const lines = text.split('\n');
+    const processedLines = [];
+    
+    lines.forEach(line => {
+      // Check if line contains bullet characters
+      const bulletRegex = /[•▪▫‣◦⁃∙◆◇►▶▷▻]/;
+      
+      if (bulletRegex.test(line)) {
+        // Get the initial indentation (whitespace before first bullet)
+        const indentMatch = line.match(/^(\s*)/);
+        const initialIndent = indentMatch ? indentMatch[1] : '';
+        
+        // Split on bullet characters and filter out empty parts
+        const parts = line.split(/[•▪▫‣◦⁃∙◆◇►▶▷▻]/)
+          .map(part => part.trim())
+          .filter(part => part.length > 0);
+        
+        // Convert each part to a markdown list item
+        parts.forEach(part => {
+          if (part.trim()) {
+            processedLines.push(`${initialIndent}- ${part.trim()}`);
+          }
+        });
+        
+      } else {
+        // No bullets in this line, keep as-is
+        processedLines.push(line);
+      }
+    });
+    
+    return processedLines.join('\n');
+  };
+
   /* ───────────────────────────────────────────────────────── Main clean function */
   const cleanMarkdown = () => {
     let text = inputText.value;
@@ -296,16 +371,22 @@ document.addEventListener('DOMContentLoaded', () => {
         text = processRemovePageNumbers(text);
       }
       
-      // Step 3: Remove double spaces recursively
+      // Step 3: Convert bullet characters to markdown lists
+      text = processConvertBullets(text);
+      
+      // Step 4: Remove blank lines between list items
+      text = processRemoveListSpacing(text);
+      
+      // Step 5: Remove double spaces recursively
       text = processRemoveDoubleSpaces(text);
       
-      // Step 4: Put cleaned text in output
+      // Step 6: Put cleaned text in output
       writeOutput(text);
       
-      // Step 5: Run linter silently (no popups)
+      // Step 7: Run linter silently (no popups)
       const issues = runLinter(text);
       
-      // Step 6: Automatically copy to clipboard
+      // Step 8: Automatically copy to clipboard
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text)
           .catch(err => { 

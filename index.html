@@ -2,31 +2,453 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Markdown Image Remover</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Markdown Cleaner & Linter</title>
+  <style>
+    :root {
+      --text-color: #1d1d1d;
+      --background-color: #ffffff;
+      --border-color: #bfbfbf;
+      --input-background: #ffffff;
+      --button-gradient-1: #bfbfbf;
+      --button-gradient-2: #8f8f8f;
+      --button-active-gradient-1: #7f7f7f;
+      --button-active-gradient-2: #4f4f4f;
+      --button-text-color: #ffffff;
+      --link-color: #0066cc;
+      --link-visited-color: #551a8b;
+      --link-hover-color: #004499;
+      --code-background: #f5f5f5;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text-color: #e0e0e0;
+        --background-color: #121212;
+        --border-color: #505050;
+        --input-background: #1e1e1e;
+        --button-gradient-1: #505050;
+        --button-gradient-2: #303030;
+        --button-active-gradient-1: #404040;
+        --button-active-gradient-2: #202020;
+        --button-text-color: #ffffff;
+        --link-color: #66b2ff;
+        --link-visited-color: #bb86fc;
+        --link-hover-color: #99ccff;
+        --code-background: #2a2a2a;
+      }
+    }
+    
+    body {
+      font-family: sans-serif;
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 1em;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.5;
+    }
+    
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text-color);
+    }
+    
+    h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-color);
+    }
+    
+    p {
+      line-height: 1.5rem;
+      font-family: sans-serif;
+      color: var(--text-color);
+      margin-bottom: 1rem;
+    }
+    
+    li, ul, ol {
+      line-height: 1.33rem;
+      margin-top: 0.33rem;
+      margin-bottom: 0.33rem;
+      font-family: sans-serif;
+      color: var(--text-color);
+    }
+    
+    a {
+      color: var(--link-color);
+      transition: color 0.2s ease;
+      text-decoration: none;
+    }
+    
+    a:visited {
+      color: var(--link-visited-color);
+    }
+    
+    a:hover, a:focus {
+      color: var(--link-hover-color);
+    }
+    
+    .main-content {
+      width: 100%;
+      margin: 20px 0;
+    }
+    
+    textarea {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 14px;
+      resize: vertical;
+      box-sizing: border-box;
+      background-color: var(--input-background);
+      color: var(--text-color);
+      display: block;
+      margin-bottom: 20px;
+    }
+    
+    textarea:focus {
+      outline: none;
+      border-color: var(--link-color);
+    }
+    
+    .controls {
+      text-align: center;
+      margin: 20px 0;
+      padding: 20px 0;
+    }
+    
+    button {
+      padding: 12px 24px;
+      background: linear-gradient(45deg, var(--button-gradient-1), var(--button-gradient-2));
+      color: var(--button-text-color);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: sans-serif;
+      font-weight: 600;
+      transition: background 0.3s ease;
+      margin-right: 20px;
+    }
+    
+    button:hover {
+      background: linear-gradient(30deg, var(--button-gradient-1), var(--button-gradient-2));
+    }
+    
+    button:active {
+      background: linear-gradient(30deg, var(--button-active-gradient-1), var(--button-active-gradient-2));
+    }
+    
+    label {
+      font-family: sans-serif;
+      color: var(--text-color);
+      cursor: pointer;
+      vertical-align: middle;
+    }
+    
+    input[type="checkbox"] {
+      cursor: pointer;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    
+    .description {
+      background-color: var(--input-background);
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 30px;
+      border: 1px solid var(--border-color);
+    }
+    
+    code {
+      background-color: var(--code-background);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 0.9em;
+      color: var(--text-color);
+    }
+    
+    strong {
+      color: var(--text-color);
+    }
+  </style>
 </head>
 <body>
 
-  <h1>Markdown Image Remover</h1>
-  <p>Paste your Markdown text below, then click "Remove images" to strip out the inline <code>![][imageX]</code> references and <code>[imageX]: ...</code> lines.</p>
+  <h1>Markdown Cleaner & Linter</h1>
+  <p>
+    Paste your Markdown below, then click "Clean Markdown" to automatically remove 
+    inline image references, optionally remove page numbers, clean up double spaces,
+    check for style issues, and copy the cleaned text to your clipboard.
+  </p>
 
-  <div class="container">
-    <textarea id="inputText" rows="15" placeholder="Paste your Markdown here..."></textarea>
-    <div class="button-row">
-      <button id="removeImagesBtn">Remove images</button>
-      <!-- New button to copy text -->
-      <button id="copyToClipboardBtn">Copy to clipboard</button>
+  <div class="main-content">
+    <textarea
+      id="inputText"
+      rows="15"
+      placeholder="Paste your Markdown here…"></textarea>
+
+    <div class="controls">
+      <button id="cleanBtn">Clean Markdown</button>
+      <label>
+        <input type="checkbox" id="removePageNumbersCheck" checked>
+        <span>Remove page numbers</span>
+      </label>
     </div>
-    <textarea id="outputText" rows="15" placeholder="Result will appear here..." readonly></textarea>
+
+    <textarea
+      id="outputText"
+      rows="15"
+      placeholder="Result will appear here…"
+      readonly></textarea>
   </div>
 
-  <!-- Description section at the bottom of the page -->
+  <!-- Description / credits -->
   <div class="description">
-    <p><strong>What does this do?</strong> This tool scans your Markdown text using JavaScript regex patterns to remove any lines that define image data (e.g., <code>[image1]: ...</code>) and all inline references of the form <code>![][imageX]</code>.</p>
-       <p><strong>Why does this exist?</strong> I found that when I use <a href="https://support.google.com/docs/answer/12014036?hl=en#zippy=%2Ccopy-google-docs-content-as-markdown">Copy as Markdown in Google Docs</a> there is a lot of image text at the end of the document, and this image text makes processing the clipboard contents harder for AI / LLMs like ChatGPT. So, I made this little utility to strip out the image text.</p>
-    <p>Created by <a href="https://nels.city/" target="_blank" rel="noopener noreferrer">Nels Nelson</a>, code available on <a href="https://github.com/nelscity/md-image-remover">Github</a>.</p>
+    <p><strong>What does the tool do?</strong></p>
+    <ul>
+      <li><em>Clean Markdown</em> automatically removes <code>![][imageX]</code> references and their reference lines.</li>
+      <li>If <em>Remove page numbers</em> is checked, also deletes lines like <code>Page 12 of 35</code> or <code>Page 7</code>.</li>
+      <li>Removes all double spaces, replacing them with single spaces throughout the text.</li>
+      <li>Runs a built-in linter to check for common Markdown style issues (silently).</li>
+      <li>Automatically copies the cleaned Markdown to your clipboard.</li>
+      <li>The cleaned result appears in the output box for review.</li>
+    </ul>
+    <p>
+      Built by <a href="https://nels.city/" target="_blank" rel="noopener noreferrer">Nels Nelson</a>.
+      Source code on <a href="https://github.com/nelscity/md-image-remover">GitHub</a>.
+    </p>
   </div>
 
-  <script src="script.js"></script>
+  <!-- No external linting dependencies - using built-in simple linter -->
+  
+  <script>
+// Enhanced script with page-number removal, Markdown linting, and robust library handling
+
+/**
+ * Utilities provided:
+ *  1. Remove image references            (button: #removeImagesBtn)
+ *  2. Remove page‑number artefacts       (button: #removePageNumbersBtn)
+ *  3. Lint Markdown with markdownlint    (button: #lintMarkdownBtn)
+ *  4. Copy the processed text to clipboard (button: #copyToClipboardBtn)
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+  /* ───────────────────────────────────────────────────────── Elements */
+  const cleanBtn = document.getElementById('cleanBtn');
+  const removePageNumbersCheck = document.getElementById('removePageNumbersCheck');
+
+  /* ───────────────────────────────────────────────────────── Textareas */
+  const inputText  = document.getElementById('inputText');
+  const outputText = document.getElementById('outputText');
+
+  /* ───────────────────────────────────────────────────────── Helper functions */
+  const writeOutput = (text) => {
+    outputText.value = text.trim();
+  };
+
+  // Image removal function (now returns processed text)
+  const processRemoveImages = (text) => {
+    text = text.replace(/!\[\]\[image\d+\]/g, '');     // inline refs
+    text = text.replace(/^\[image\d+\]:.*$/gm, '');      // definitions
+    return text;
+  };
+
+  // Page number removal function (now returns processed text)
+  const processRemovePageNumbers = (text) => {
+    text = text.replace(/^[ \t]*Page[ \t]+\d+(?:[ \t]+of[ \t]+\d+)?[ \t]*$/gim, '');
+    text = text.replace(/\n{3,}/g, '\n\n');
+    return text;
+  };
+
+  // Double space removal function (recursive until no double spaces remain)
+  const processRemoveDoubleSpaces = (text) => {
+    let previousText;
+    do {
+      previousText = text;
+      text = text.replace(/  /g, ' ');
+    } while (text !== previousText);
+    return text;
+  };
+
+  /* ───────────────────────────────────────────────────────── Main clean function */
+  const cleanMarkdown = () => {
+    let text = inputText.value;
+    if (!text.trim()) {
+      alert('No content to process!');
+      return;
+    }
+
+    try {
+      // Step 1: Always remove images
+      text = processRemoveImages(text);
+      
+      // Step 2: Conditionally remove page numbers
+      if (removePageNumbersCheck.checked) {
+        text = processRemovePageNumbers(text);
+      }
+      
+      // Step 3: Remove double spaces recursively
+      text = processRemoveDoubleSpaces(text);
+      
+      // Step 4: Put cleaned text in output
+      writeOutput(text);
+      
+      // Step 5: Run linter silently (no popups)
+      const issues = runLinter(text);
+      
+      // Step 6: Automatically copy to clipboard
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+          .catch(err => { 
+            console.error('Failed to copy:', err);
+            alert('Error copying text to clipboard.'); 
+          });
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+        } catch (err) {
+          alert('Error copying text to clipboard.');
+        }
+        document.body.removeChild(textArea);
+      }
+      
+    } catch (err) {
+      console.error('Cleaning failed:', err);
+      alert('An error occurred while cleaning the markdown.');
+    }
+  };
+
+  /* ───────────────────────────────────────────────────────── Linting functions */
+  // Core linting logic (returns array of issues)
+  const runLinter = (text) => {
+    const issues = [];
+    const lines = text.split('\n');
+    
+    lines.forEach((line, index) => {
+      const lineNum = index + 1;
+      
+      // MD009: Trailing spaces
+      if (line.endsWith(' ') && line.trim() !== '') {
+        issues.push(`Line ${lineNum}: MD009 - Trailing whitespace`);
+      }
+      
+      // MD012: Multiple consecutive blank lines
+      if (index > 0 && line === '' && lines[index - 1] === '' && lines[index + 1] === '') {
+        issues.push(`Line ${lineNum}: MD012 - Multiple consecutive blank lines`);
+      }
+      
+      // MD018: No space after hash on atx style heading
+      if (line.match(/^#+[^\s#]/)) {
+        issues.push(`Line ${lineNum}: MD018 - No space after hash on heading`);
+      }
+      
+      // MD019: Multiple spaces after hash on atx style heading
+      if (line.match(/^#+\s{2,}/)) {
+        issues.push(`Line ${lineNum}: MD019 - Multiple spaces after hash on heading`);
+      }
+      
+      // MD013: Line length (configurable, using 120 as reasonable default)
+      if (line.length > 120) {
+        issues.push(`Line ${lineNum}: MD013 - Line too long (${line.length} chars, max 120)`);
+      }
+      
+      // MD004: Unordered list style should be consistent
+      if (line.match(/^\s*[\+\*\-]\s/)) {
+        const match = line.match(/^\s*([\+\*\-])/);
+        if (match && index > 0) {
+          // Look for previous list item
+          for (let i = index - 1; i >= 0; i--) {
+            const prevLine = lines[i];
+            const prevMatch = prevLine.match(/^\s*([\+\*\-])/);
+            if (prevMatch) {
+              if (prevMatch[1] !== match[1]) {
+                issues.push(`Line ${lineNum}: MD004 - Unordered list style inconsistent (found '${match[1]}', expected '${prevMatch[1]}')`);
+              }
+              break;
+            }
+            // Stop if we hit a non-empty, non-list line
+            if (prevLine.trim() !== '' && !prevLine.match(/^\s*[\+\*\-]\s/)) {
+              break;
+            }
+          }
+        }
+      }
+      
+      // MD030: Spaces after list markers
+      const listMatch = line.match(/^(\s*)([\+\*\-]|\d+\.)\s*/);
+      if (listMatch) {
+        const afterMarker = line.substring(listMatch[0].length);
+        const spacesAfterMarker = listMatch[0].length - listMatch[1].length - listMatch[2].length;
+        if (spacesAfterMarker !== 1) {
+          issues.push(`Line ${lineNum}: MD030 - Spaces after list marker should be 1 (found ${spacesAfterMarker})`);
+        }
+      }
+      
+      // MD032: Lists should be surrounded by blank lines
+      if (line.match(/^\s*[\+\*\-\d]+[\.\)]\s/) && index > 0) {
+        const prevLine = lines[index - 1];
+        if (prevLine.trim() !== '' && !prevLine.match(/^\s*[\+\*\-\d]+[\.\)]\s/)) {
+          issues.push(`Line ${lineNum}: MD032 - Lists should be surrounded by blank lines`);
+        }
+      }
+      
+      // MD047: Files should end with a single newline character
+      if (index === lines.length - 1 && line !== '') {
+        issues.push(`Line ${lineNum}: MD047 - Files should end with a single newline character`);
+      }
+      
+      // MD025: Multiple top level headings in the same document
+      if (line.match(/^#\s/)) {
+        const h1Count = lines.filter(l => l.match(/^#\s/)).length;
+        if (h1Count > 1) {
+          // Only report this once
+          if (index === lines.findIndex(l => l.match(/^#\s/)) + 1) {
+            issues.push(`Line ${lineNum}: MD025 - Multiple top level headings (${h1Count} found)`);
+          }
+        }
+      }
+      
+      // MD026: Trailing punctuation in heading
+      if (line.match(/^#+\s.*[\.,:;!]$/)) {
+        issues.push(`Line ${lineNum}: MD026 - Trailing punctuation in heading`);
+      }
+      
+      // MD033: Inline HTML (basic detection)
+      if (line.match(/<[^>]+>/) && !line.match(/<!--.*-->/)) {
+        issues.push(`Line ${lineNum}: MD033 - Inline HTML detected`);
+      }
+    });
+
+    // MD041: First line in file should be a top level heading
+    if (lines.length > 0 && lines[0].trim() !== '' && !lines[0].match(/^#\s/)) {
+      // Look for the first non-empty line
+      const firstNonEmptyIndex = lines.findIndex(line => line.trim() !== '');
+      if (firstNonEmptyIndex >= 0 && !lines[firstNonEmptyIndex].match(/^#\s/)) {
+        issues.push(`Line ${firstNonEmptyIndex + 1}: MD041 - First line should be a top level heading`);
+      }
+    }
+    
+    return issues;
+  };
+
+  /* ───────────────────────────────────────────────────────── Event binds */
+  cleanBtn?.addEventListener('click', cleanMarkdown);
+
+});
+  </script>
 </body>
 </html>

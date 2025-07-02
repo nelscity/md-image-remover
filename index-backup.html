@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Markdown Cleaner & Linter</title>
+  <link rel="stylesheet" href="style.css" />
+
+<!-- ⚡ Adds the compiled markdownlint bundle (pick either CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/markdownlint-cli@0.45.0/markdownlint.min.js"></script>
+<!-- Your enhanced utilities -->
+<script src="script.js"></script>
+
+</head>
+<body>
+
+  <h1>Markdown Cleaner & Linter</h1>
+  <p>
+    Paste your Markdown below, then use the buttons to tidy it up:
+    remove inline image references, strip page numbers such as
+    <code>Page 5 of 35</code>, lint the Markdown for style issues, or copy the
+    cleaned text to your clipboard.
+  </p>
+
+  <div class="container">
+    <textarea
+      id="inputText"
+      rows="15"
+      placeholder="Paste your Markdown here…"></textarea>
+
+    <div class="button-row">
+      <button id="removeImagesBtn">Remove images</button>
+      <button id="removePageNumbersBtn">Remove page numbers</button>
+      <button id="lintMarkdownBtn">Lint Markdown</button>
+      <button id="copyToClipboardBtn">Copy to clipboard</button>
+    </div>
+
+    <textarea
+      id="outputText"
+      rows="15"
+      placeholder="Result will appear here…"
+      readonly></textarea>
+  </div>
+
+  <!-- Description / credits -->
+  <div class="description">
+    <p><strong>What do the buttons do?</strong></p>
+    <ul>
+      <li><em>Remove images</em> strips <code>![][imageX]</code> references and their reference lines.</li>
+      <li><em>Remove page numbers</em> deletes lines like <code>Page 12 of 35</code> or <code>Page 7</code>.</li>
+      <li><em>Lint Markdown</em> runs <code>markdownlint</code> in-browser and shows rule violations.</li>
+      <li><em>Copy to clipboard</em> copies the cleaned Markdown from the output box.</li>
+    </ul>
+    <p>
+      Built by <a href="https://nels.city/" target="_blank" rel="noopener noreferrer">Nels Nelson</a>.
+      Source code on <a href="https://github.com/nelscity/md-image-remover">GitHub</a>.
+    </p>
+  </div>
+
+  <!-- Your enhanced script (needs to be loaded after markdownlint above) -->
+  <script src="script.js"></script>
+</body>
+</html>

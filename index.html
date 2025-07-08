@@ -217,7 +217,7 @@
     <p><strong>What does the tool do?</strong></p>
     <ul>
       <li><em>Clean Markdown</em> automatically removes <code>![][imageX]</code> references and their reference lines.</li>
-      <li>If <em>Remove page numbers</em> is checked, also deletes lines like <code>Page 12 of 35</code> or <code>Page 7</code>.</li>
+      <li>If <em>Remove page numbers</em> is checked, also deletes lines containing page numbers like <code>Page 12 of 35</code>, <code>Page 7</code>, or <code>Page 2 of 2 May 2023</code>.</li>
       <li>Converts bullet characters (•, ▪, ▫, etc.) to proper markdown list format using dashes.</li>
       <li>Removes blank lines between consecutive list items (markdown best practice).</li>
       <li>Removes all double spaces, replacing them with single spaces throughout the text.</li>
@@ -265,10 +265,27 @@ document.addEventListener('DOMContentLoaded', () => {
     return text;
   };
 
-  // Page number removal function (now returns processed text)
+  // Enhanced page number removal function - removes entire lines containing page numbers
   const processRemovePageNumbers = (text) => {
-    text = text.replace(/^[ \t]*Page[ \t]+\d+(?:[ \t]+of[ \t]+\d+)?[ \t]*$/gim, '');
+    // Enhanced regex to match any line containing page numbers with optional surrounding text
+    // Matches patterns like:
+    // - "Page 5"
+    // - "Page 12 of 35" 
+    // - "Page 2 of 2 May 2023"
+    // - "Document Title Page 3 of 10 Final Version"
+    // - "   Page 7   " (with whitespace)
+    text = text.replace(/^.*\bPage\s+\d+(?:\s+of\s+\d+)?.*$/gim, '');
+    
+    // Also match some common variations:
+    // - "p. 5", "p.5", "pp. 3-5" 
+    text = text.replace(/^.*\bp\.?\s*\d+(?:\s*-\s*\d+)?.*$/gim, '');
+    
+    // Match "5 of 10" patterns (without "Page" prefix) when they appear to be standalone page indicators
+    text = text.replace(/^\s*\d+\s+of\s+\d+\s*$/gim, '');
+    
+    // Clean up multiple consecutive blank lines that may result from removals
     text = text.replace(/\n{3,}/g, '\n\n');
+    
     return text;
   };
 
